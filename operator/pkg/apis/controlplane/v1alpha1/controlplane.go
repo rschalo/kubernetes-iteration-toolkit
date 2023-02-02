@@ -55,6 +55,7 @@ type ControlPlaneSpec struct {
 type Etcd struct {
 	Component                 `json:",inline"`
 	PersistentVolumeClaimSpec *v1.PersistentVolumeClaimSpec `json:"persistentVolumeClaimSpec,omitempty"`
+	VolumeType ebs/disk
 }
 
 // MasterSpec provides a way for the user to configure master instances and

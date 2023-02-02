@@ -37,6 +37,8 @@ spec:
       spec:
         clusterName: $(params.name) # Associated Cluster name
         nodeCount: $(params.node-count)
+        instanceTypes:
+        - t3.medium
         subnetSelector:
           karpenter.sh/discovery: ${TAG}
       EOF

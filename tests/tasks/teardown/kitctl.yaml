@@ -22,7 +22,9 @@ spec:
     image: bitnami/kubectl
     script: |
       #!/bin/bash
-      echo "Tear down guest cluster"
+      echo "Tear down guest controlplane"
       kubectl delete controlplane -n $(params.name) $(params.name)
+      echo "Tear down guest dataplane"
+      kubectl delete dataplane -n $(params.name) $(params.name)
       echo "Delete namespace"
       kubectl delete namespace $(params.name)

@@ -1,32 +1,95 @@
+# this is the pipeline
+
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: pipeline-template
+  name: multicluster-run
   namespace: tekton-pipelines
 spec:
   params:
-  - name: name
-    description: The name of the test cluster.
-    default: "guest"
+  - name: first-control-plane-name
+    description: The name of the first test cluster.
+    default: "first"
+  - name: second-control-plane-name
+    description: The name of the second test cluster.
+    default: "second"
+  - name: kubernetes-version
+    description: The version of the kubernetes management cluster.
+    default: "1.19"
+  - name: first-control-plane-api-server-count
+    description: Number of instances in the api server ASG in the first cluster
+    default: "2"
+  - name: second-control-plane-api-server-count
+    description: Number of instances in the api server ASG in the second cluster
+    default: "3"
   tasks:
-  - name: setup-control-plane
+  - name: first-control-plane-setup
     taskRef:
       name: control-plane-setup
     params:
       - name: name
-        value: '$(params.name)'
-  - name: setup-data-plane
-    runAfter: [setup-control-plane]
+        value: '$(params.first-control-plane-name)'
+      - name: kubernetes-version
+        value: '$(params.kubernetes-version)'
+      - name: apiserver-replicas
+        value: '$(params.first-control-plane-api-server-count)'
+  - name: echo-first-controlplane-finish
+    runAfter: [first-control-plane-setup]
+    taskRef:
+      name: controlplane-finish
+  - name: setup-first-data-plane
+    runAfter: [echo-first-controlplane-finish]
     taskRef:
       name: data-plane-setup
     params:
       - name: name
-        value: '$(params.name)'
-  finally:      
-  - name: teardown
+        value: '$(params.first-control-plane-name)'
+  - name: echo-first-dataplane-finish
+    runAfter: [setup-first-data-plane]
+    taskRef:
+      name: dataplane-finish
+  - name: teardown-first-control-plane
+    runAfter: [echo-first-dataplane-finish]
     taskRef:
       name: teardown
     params:
       - name: name
-        value: '$(params.name)'
+        value: '$(params.first-control-plane-name)'
+  - name: second-control-plane-setup
+    runAfter: [teardown-first-control-plane]
+    taskRef:
+      name: control-plane-setup
+    params:
+      - name: name
+        value: '$(params.second-control-plane-name)'
+      - name: kubernetes-version
+        value: '$(params.kubernetes-version)'
+      - name: apiserver-replicas
+        value: '$(params.second-control-plane-api-server-count)'
+  - name: echo-second-controlplane-finish
+    runAfter: [second-control-plane-setup]
+    taskRef:
+      name: controlplane-finish
+  - name: setup-second-data-plane
+    runAfter: [echo-second-controlplane-finish]
+    taskRef:
+      name: data-plane-setup
+    params:
+      - name: name
+        value: '$(params.second-control-plane-name)'
+  - name: echo-second-dataplane-finish
+    runAfter: [setup-second-data-plane]
+    taskRef:
+      name: dataplane-finish      
+  - name: teardown-second-control-plane
+    runAfter: [echo-second-dataplane-finish]
+    taskRef:
+      name: teardown
+    params:
+      - name: name
+        value: '$(params.second-control-plane-name)'
+  finally:
+  - name: sweep-nodes
+    taskRef:
+      name: node-sweeper

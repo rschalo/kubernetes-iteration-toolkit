@@ -1,15 +1,21 @@
+# this runs the pipeline
+
+# listed params populate params in ./template.yaml such as '$(params.name)'
+
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: pipeline-template
+  name: ab-cluster-test
   namespace: tekton-pipelines
 spec:
+  pipelineRef:
+    name: multicluster-run
   params:
   - name: name
     value: "example"
+  - name: kubernetes-version
+    value: "1.23"
   podTemplate:
     nodeSelector:
       kubernetes.io/arch: amd64
   serviceAccountName: tekton-pipelines-executor
-  pipelineRef:
-    name: pipeline-template

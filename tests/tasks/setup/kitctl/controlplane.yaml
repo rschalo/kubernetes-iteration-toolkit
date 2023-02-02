@@ -18,7 +18,7 @@ spec:
     default: "guest"
     description: Name of the guest cluster
   - name: apiserver-replicas
-    default: "1"
+    default: "3"
     description: Number of APIserver replicas
   - name: apiserver-image
     default: ""
@@ -27,7 +27,7 @@ spec:
     default: ""
     description: Parameters of the apiserver container
   - name: apiserver-instance-type
-    default: "m5.16xlarge"
+    default: "c5a.4xlarge"
     description: Instance type for the apiserver
   - name: etcd-replicas
     default: "3"
@@ -39,7 +39,7 @@ spec:
     default: ""
     description: Parameters of the ETCD container
   - name: etcd-instance-type
-    default: "m5.16xlarge"
+    default: "c5.4xlarge"
     description: Instance type for the ETCD
   - name: kubernetes-version
     default: "1.19"
