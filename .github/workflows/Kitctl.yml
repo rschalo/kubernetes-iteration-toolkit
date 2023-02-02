@@ -6,7 +6,7 @@ on:
 permissions:
   id-token: write
   pull-requests: write
-  contents: write
+  contents: read
 jobs:
   kit:
     strategy:
