@@ -15,11 +15,11 @@ jobs:
         arch: ["amd64"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/install-go-and-dependencies
       - uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::953421922360:role/kit-Github-workflow
+          role-to-assume: arn:aws:iam::078365735624:role/github-Token-generate
           role-session-name: githubworkflowsession
           aws-region: us-west-2   
       - name: Install kubectl
