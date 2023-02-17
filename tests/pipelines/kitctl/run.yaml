@@ -8,6 +8,20 @@ metadata:
   name: ab-cluster-test
   namespace: tekton-pipelines
 spec:
+  workspaces:
+    - name: source
+      emptyDir: {}
+    - name: results
+      emptyDir: {}
+    - name: kubeconfig
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          storageClassName: kit-gp2
+          resources:
+            requests:
+              storage: 1Gi
   pipelineRef:
     name: multicluster-run
   params:
@@ -15,6 +29,12 @@ spec:
     value: "example"
   - name: kubernetes-version
     value: "1.23"
+  - name: "node_count"
+    value: "10"
+  - name: "amp-workspace-id"
+    value: "my-AMP-workspace"
+  - name: "results-bucket"
+    value: "kitctl-schalor/results"
   podTemplate:
     nodeSelector:
       kubernetes.io/arch: amd64

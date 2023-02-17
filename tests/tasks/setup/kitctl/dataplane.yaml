@@ -14,40 +14,55 @@ spec:
   description: |
     Setup a kubernetes data plane in the guest cluster.
   params:
-  - name: name
+  - name: cluster-name
     default: "guest"
     description: Name of the guest cluster
   - name: node-count
     default: "5"
     description: Number of worker nodes
+  - name: dataplane-name
+    default: ""
+    description: Optional name of the dataplane object.
+  - name: instance-types
+    default: '["t3.large"]'
+    description: The desired instance types of the node group.
   steps:
   - name: setup-data-plane
     image: bitnami/kubectl
     script: |
       #!/bin/bash
+      if [ -z "$(params.dataplane-name)" ]
+      then
+        dp_name=$(params.cluster-name)-nodes
+      else
+        dp_name=$(params.dataplane-name)
+      fi
       echo "Getting subnet and security group tags"
-      TAG=$(kubectl get provisioner -oyaml | grep karpenter.sh/discovery | awk 'NR==1{ print $2}')
+      TAG=$(kubectl get provisioner -o yaml | grep karpenter.sh/discovery | awk 'NR==1{ print $2}')
       echo "Setting up data plane"
       cat <<EOF | kubectl apply -f -
       apiVersion: kit.k8s.sh/v1alpha1
       kind: DataPlane
       metadata:
-        name: $(params.name)
-        namespace: $(params.name)
+        name: $dp_name
+        namespace: $(params.cluster-name)
       spec:
-        clusterName: $(params.name) # Associated Cluster name
+        clusterName: $(params.cluster-name) # Associated Cluster name
         nodeCount: $(params.node-count)
-        instanceTypes:
-        - t3.medium
+        instanceTypes: $(params.instance-types)
         subnetSelector:
           karpenter.sh/discovery: ${TAG}
       EOF
       echo "Getting kube admin config"
-      kubectl get secret -n $(params.name) $(params.name)-kube-admin-config -ojsonpath='{.data.config}' | base64 -d > /tmp/kubeconfig
+      kubectl get secret -n $(params.cluster-name) $(params.cluster-name)-kube-admin-config -ojsonpath='{.data.config}' | base64 -d > /tmp/kubeconfig
+      echo "cat /tmp/kubeconfig: "
+      cat /tmp/kubeconfig
       echo "Waiting for the worker nodes to be ready"
+
       while true; do
           ready_node=$(kubectl --kubeconfig=/tmp/kubeconfig get nodes 2>/dev/null | grep -w Ready | wc -l)
-          if [[ "$ready_node" -eq $(params.node-count) ]]; then break; fi
+          if [[ "$ready_node" -eq $(params.node-count) || "$ready_node" -gt $(params.node-count) ]]; then break; fi
           sleep 5
-      done 
+      done
+
       kubectl --kubeconfig=/tmp/kubeconfig get nodes
