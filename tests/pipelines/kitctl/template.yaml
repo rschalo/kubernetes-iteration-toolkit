@@ -14,7 +14,7 @@ spec:
   params:
   - name: first-control-plane-name
     description: The name of the first test cluster.
-    default: "first-cluster"
+    default: "first"
   - name: second-control-plane-name
     description: The name of the second test cluster.
     default: "second"

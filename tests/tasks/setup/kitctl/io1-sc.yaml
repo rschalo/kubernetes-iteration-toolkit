@@ -23,7 +23,7 @@ spec:
     script: |
       #!/bin/bash
       kubectl get secret -n $(params.cluster-name) $(params.cluster-name)-kube-admin-config -ojsonpath='{.data.config}' | base64 -d > /tmp/kubeconfig
-      cat <<EOF | kubectl --kubeconfig=/tmp/kubeconfig2 apply -f -
+      cat <<EOF | kubectl --kubeconfig=/tmp/kubeconfig apply -f -
       kind: StorageClass
       apiVersion: storage.k8s.io/v1
       metadata:
