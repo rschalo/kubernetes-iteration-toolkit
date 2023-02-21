@@ -27,7 +27,7 @@ spec:
       kind: StorageClass
       apiVersion: storage.k8s.io/v1
       metadata:
-        name: kit-io1
+        name: io1
       provisioner: ebs.csi.aws.com
       parameters:
         type: "io1"
@@ -36,4 +36,4 @@ spec:
       volumeBindingMode: WaitForFirstConsumer
       EOF
       echo "Approving KCM requests"
-      kubectl --kubeconfig /tmp/kubeconfig certificate approve $(kubectl --kubeconfig /tmp/kubeconfig2 get csr | grep "Pending" | awk '{print $1}')  2>/dev/null  || true
+      kubectl --kubeconfig /tmp/kubeconfig certificate approve $(kubectl --kubeconfig /tmp/kubeconfig get csr | grep "Pending" | awk '{print $1}')  2>/dev/null  || true

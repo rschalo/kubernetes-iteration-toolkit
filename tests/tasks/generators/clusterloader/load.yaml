@@ -76,6 +76,7 @@ spec:
       CL2_ENABLE_PVS: false
       PROMETHEUS_SCRAPE_KUBE_PROXY: false
       PROMETHEUS_SCRAPE_APISERVER_ONLY: true
+      PROMETHEUS_PVC_STORAGE_CLASS: io1
       ENABLE_SYSTEM_POD_METRICS: false
       NODE_MODE: master 
       CL2_DISABLE_DAEMONSETS: true
@@ -131,7 +132,7 @@ spec:
     script: |
       #!/bin/bash
       if [ -n "$(params.amp-workspace-id)" ]; then
-        CL2_PROMETHEUS_FLAGS="--enable-prometheus-server=true --prometheus-pvc-storage-class kit-io1 --prometheus-storage-class-provisioner ebs.csi.aws.com --prometheus-manifest-path=$(workspaces.source.path)/perf-tests/clusterloader2/pkg/prometheus/manifests/"
+        CL2_PROMETHEUS_FLAGS="--enable-prometheus-server=true --prometheus-pvc-storage-class io1 --prometheus-storage-class-provisioner ebs.csi.aws.com --prometheus-manifest-path=$(workspaces.source.path)/perf-tests/clusterloader2/pkg/prometheus/manifests/"
       fi
 
       kubectl get secret -n $(params.cluster-name) $(params.cluster-name)-kube-admin-config -ojsonpath='{.data.config}' | base64 -d > /tmp/kubeconfig

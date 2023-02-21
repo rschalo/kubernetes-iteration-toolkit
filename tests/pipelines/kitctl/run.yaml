@@ -32,7 +32,7 @@ spec:
   - name: "node_count"
     value: "10"
   - name: "amp-workspace-id"
-    value: "my-AMP-workspace"
+    value: "ws-0fbfbee6-d716-4843-8890-c5e10d8d9e63"
   - name: "results-bucket"
     value: "kitctl-schalor/results"
   podTemplate:
