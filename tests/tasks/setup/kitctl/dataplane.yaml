@@ -37,18 +37,15 @@ spec:
       spec:
         clusterName: $(params.name) # Associated Cluster name
         nodeCount: $(params.node-count)
-        instanceTypes: $(params.instance-types)
         subnetSelector:
           karpenter.sh/discovery: ${TAG}
       EOF
       echo "Getting kube admin config"
       kubectl get secret -n $(params.name) $(params.name)-kube-admin-config -ojsonpath='{.data.config}' | base64 -d > /tmp/kubeconfig
       echo "Waiting for the worker nodes to be ready"
-
       while true; do
           ready_node=$(kubectl --kubeconfig=/tmp/kubeconfig get nodes 2>/dev/null | grep -w Ready | wc -l)
           if [[ "$ready_node" -eq $(params.node-count) ]]; then break; fi
           sleep 5
       done
-
       kubectl --kubeconfig=/tmp/kubeconfig get nodes
