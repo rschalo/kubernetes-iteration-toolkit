@@ -83,11 +83,25 @@ export class KITInfrastructure extends Stack {
       subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
     });
 
+    const lt = new ec2.CfnLaunchTemplate(this, 'tekton-tests-lt', {
+      launchTemplateData: {
+        metadataOptions: {
+          httpEndpoint: "enabled",
+          httpTokens: "required",
+          httpPutResponseHopLimit: 2,
+        }
+      }
+    })
+
     const ng = cluster.addNodegroupCapacity('SystemPool', {
       subnets: privateSubnets,
       nodeRole: workerRole,
       minSize: 3,
       maxSize: 3,
+      launchTemplateSpec: {
+        id: lt.ref,
+        version: lt.attrLatestVersionNumber,
+      },
       instanceTypes: [
         new ec2.InstanceType('m5.large'),
         new ec2.InstanceType('m5a.large'),
@@ -110,8 +124,6 @@ export class KITInfrastructure extends Stack {
         },
       ],
     });
-
-    // Setup Tekton test permissions
 
     const ns = cluster.addManifest('tekton-tests-ns', {
       apiVersion: 'v1',
