@@ -28,5 +28,5 @@ spec:
     taskRef:
       name: teardown
     params:
-    - name: name
-      value: '$(params.name)'
+      - name: name
+        value: '$(params.name)'
