@@ -1,41 +1,15 @@
-# this runs the pipeline
-
-# listed params populate params in ./template.yaml such as '$(params.name)'
-
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: ab-cluster-test
+  name: pipeline-template
   namespace: tekton-pipelines
 spec:
-  workspaces:
-    - name: source
-      emptyDir: {}
-    - name: results
-      emptyDir: {}
-    - name: kubeconfig
-      volumeClaimTemplate:
-        spec:
-          accessModes:
-          - ReadWriteOnce
-          storageClassName: kit-gp2
-          resources:
-            requests:
-              storage: 1Gi
-  pipelineRef:
-    name: multicluster-run
   params:
   - name: name
     value: "example"
-  - name: kubernetes-version
-    value: "1.23"
-  - name: "node_count"
-    value: "10"
-  - name: "amp-workspace-id"
-    value: "ws-0fbfbee6-d716-4843-8890-c5e10d8d9e63"
-  - name: "results-bucket"
-    value: "kitctl-schalor/results"
   podTemplate:
     nodeSelector:
       kubernetes.io/arch: amd64
   serviceAccountName: tekton-pipelines-executor
+  pipelineRef:
+    name: pipeline-template
